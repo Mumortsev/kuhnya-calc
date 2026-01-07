@@ -41,7 +41,7 @@
             border: 1px solid rgba(255,255,255,0.1);
             position: relative;
             overflow: hidden;
-            /* ВАЖНО: Поднимаем карточки над фоном, чтобы они кликались */
+            /* ФИКС: Чтобы карточки нажимались */
             z-index: 50; 
         }
         .mat-card:hover { transform: translateY(-5px); }
@@ -57,6 +57,9 @@
             border-radius: 12px;
             background: var(--glass);
             border: 1px solid var(--border);
+            /* ФИКС: Чтобы таблица не перекрывалась */
+            position: relative;
+            z-index: 40;
         }
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
         th {
@@ -71,9 +74,9 @@
         }
         td { padding: 10px; border-bottom: 1px solid var(--border); }
         
-        /* --- НОВЫЕ СТИЛИ ДЛЯ ИНПУТОВ И СЕЛЕКТОВ --- */
+        /* --- СТИЛИ ДЛЯ ИНПУТОВ И СЕЛЕКТОВ --- */
         input, select {
-            background-color: rgba(15, 48, 82, 0.9); /* Чуть плотнее фон */
+            background-color: rgba(15, 48, 82, 0.9);
             border: 1px solid var(--border);
             color: white;
             padding: 10px 12px;
@@ -82,16 +85,16 @@
             font-size: 14px;
             transition: all 0.2s;
             appearance: none;
-            /* ВАЖНО: Поднимаем инпуты, чтобы они кликались */
+            /* ФИКС: Чтобы поля ввода нажимались */
             position: relative;
-            z-index: 20;
+            z-index: 50;
+            cursor: pointer;
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300d4ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
             background-position: right 0.5rem center;
             background-repeat: no-repeat;
             background-size: 1.5em 1.5em;
         }
         input { background-image: none; cursor: text; } 
-        select { cursor: pointer; }
         
         input:focus, select:focus {
             outline: none;
@@ -114,9 +117,9 @@
             cursor: pointer;
             user-select: none;
             transition: 0.2s;
-            /* ВАЖНО: Кнопки плюса/минуса тоже поднимаем */
+            /* ФИКС: Кнопки +/- */
             position: relative;
-            z-index: 20;
+            z-index: 50;
         }
         .stepper-btn:active { background: var(--primary); color: black; transform: scale(0.9); }
 
@@ -359,11 +362,10 @@
         </main>
     </div>
 
-    <div id="invoice-view">
-    </div>
+    <div id="invoice-view"></div>
 
     <script>
-        // --- 2. ИНИЦИАЛИЗАЦИЯ TELEGRAM (БЕЗОПАСНАЯ) ---
+        // ИНИЦИАЛИЗАЦИЯ TELEGRAM (БЕЗОПАСНАЯ)
         let tg = null;
         try {
             if (window.Telegram && window.Telegram.WebApp) {
@@ -371,7 +373,7 @@
                 tg.expand();
             }
         } catch (e) {
-            console.log("Web mode (not in Telegram)");
+            console.log("Web mode");
         }
 
         const VAT_RATE = 0.22;
@@ -382,7 +384,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             if(window.lucide) lucide.createIcons();
-            loadFromLS();
+            try { loadFromLS(); } catch(e) { console.error(e); }
             if(document.getElementById('tableBody').children.length === 0) addRow();
         });
 
@@ -519,7 +521,8 @@
             const saved = JSON.parse(localStorage.getItem('facadeCalc2026'));
             if(!saved) return;
             if(saved.globalMatPrice) {
-                 setGlobalMaterial(saved.globalMatPrice, document.querySelector(`.mat-card[onclick*="${saved.globalMatPrice}"]`) || document.querySelector('.mat-card'));
+                 const el = document.querySelector(`.mat-card[onclick*="${saved.globalMatPrice}"]`) || document.querySelector('.mat-card');
+                 if(el) setGlobalMaterial(saved.globalMatPrice, el);
             }
             if(saved.accQty) {
                 Object.keys(saved.accQty).forEach(k => { accQty[k] = saved.accQty[k]; document.getElementById(`qty-${k}`).textContent = accQty[k]; });
@@ -626,56 +629,68 @@
         }
 
         function downloadPDF() {
-            const content = generateInvoiceHTML();
-            const view = document.getElementById('invoice-view');
-            view.innerHTML = content;
-            const app = document.getElementById('app-ui');
-            app.style.display = 'none';
-            view.style.display = 'block';
+            try {
+                const content = generateInvoiceHTML();
+                const view = document.getElementById('invoice-view');
+                view.innerHTML = content;
+                const app = document.getElementById('app-ui');
+                app.style.display = 'none';
+                view.style.display = 'block';
 
-            const opt = {
-                margin:       10,
-                filename:     'Smeta_Kuhni.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['css', 'legacy'] }
-            };
+                const opt = {
+                    margin:       10,
+                    filename:     'Smeta_Kuhni.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak:    { mode: ['css', 'legacy'] }
+                };
 
-            html2pdf().set(opt).from(view).save().then(() => {
-                app.style.display = 'block';
-                view.style.display = 'none';
-            });
+                html2pdf().set(opt).from(view).save().then(() => {
+                    app.style.display = 'block';
+                    view.style.display = 'none';
+                });
+            } catch(e) {
+                alert("Ошибка PDF: " + e);
+            }
         }
 
         function handlePrint() {
-            document.getElementById('invoice-view').innerHTML = generateInvoiceHTML();
-            window.print();
+            try {
+                document.getElementById('invoice-view').innerHTML = generateInvoiceHTML();
+                window.print();
+            } catch(e) {
+                alert("Ошибка печати: " + e);
+            }
         }
 
-        // --- 3. ФУНКЦИЯ ОТПРАВКИ В TELEGRAM ---
+        // --- 3. НОВАЯ ФУНКЦИЯ ОТПРАВКИ В TELEGRAM ---
         function sendToTelegram() {
-            const total = document.getElementById('grandTotal').textContent;
-            let message = `🆕 НОВЫЙ ЗАКАЗ\n💰 ИТОГО: ${total}\n📅 Дата: ${new Date().toLocaleDateString()}\n\n📋 Детализация:\n`;
-            
-            document.querySelectorAll('#tableBody tr').forEach((tr, i) => {
-                const h = tr.querySelector('.inp-h').value;
-                const w = tr.querySelector('.inp-w').value;
-                const q = tr.querySelector('.inp-q').value;
-                const vendor = tr.querySelector('.inp-vendor option:checked').text;
-                const price = tr.querySelector('.row-total').textContent;
-                message += `${i+1}. ${h}x${w} мм, ${q} шт. (${vendor}) = ${price}\n`;
-            });
+            try {
+                const total = document.getElementById('grandTotal').textContent;
+                let message = `🆕 НОВЫЙ ЗАКАЗ\n💰 ИТОГО: ${total}\n📅 Дата: ${new Date().toLocaleDateString()}\n\n📋 Детализация:\n`;
+                
+                document.querySelectorAll('#tableBody tr').forEach((tr, i) => {
+                    const h = tr.querySelector('.inp-h').value;
+                    const w = tr.querySelector('.inp-w').value;
+                    const q = tr.querySelector('.inp-q').value;
+                    const vendor = tr.querySelector('.inp-vendor option:checked').text;
+                    const price = tr.querySelector('.row-total').textContent;
+                    message += `${i+1}. ${h}x${w} мм, ${q} шт. (${vendor}) = ${price}\n`;
+                });
 
-            if(accQty.plinth > 0) message += `➕ Плинтус: ${accQty.plinth} шт.\n`;
-            if(accQty.kick > 0) message += `➕ Цоколь: ${accQty.kick} шт.\n`;
-            if(accQty.caps > 0) message += `➕ Заглушки: ${accQty.caps} шт.\n`;
-            if(accQty.strips > 0) message += `➕ Планки: ${accQty.strips} шт.\n`;
+                if(accQty.plinth > 0) message += `➕ Плинтус: ${accQty.plinth} шт.\n`;
+                if(accQty.kick > 0) message += `➕ Цоколь: ${accQty.kick} шт.\n`;
+                if(accQty.caps > 0) message += `➕ Заглушки: ${accQty.caps} шт.\n`;
+                if(accQty.strips > 0) message += `➕ Планки: ${accQty.strips} шт.\n`;
 
-            if (tg) {
-                tg.sendData(message);
-            } else {
-                alert("Это сообщение уйдет в Telegram бот (сейчас вы в браузере):\n\n" + message);
+                if (tg && tg.sendData) {
+                    tg.sendData(message);
+                } else {
+                    alert("Данные для бота:\n\n" + message);
+                }
+            } catch(e) {
+                alert("Ошибка отправки: " + e);
             }
         }
     </script>
