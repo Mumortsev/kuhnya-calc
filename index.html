@@ -70,7 +70,8 @@
             </div>
         </header>
 
-        <main class="flex-grow max-w-[1400px] mx-auto w-full px-2 md:px-6 -mt-6 z-10 space-y-8 pb-24">
+        <main class="relative flex-grow max-w-[1400px] mx-auto w-full px-2 md:px-6 -mt-6 z-10 space-y-8 pb-24">
+            
             <section class="bg-[#0a2540] rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
                 <div class="p-4 bg-[#0f3052] flex flex-wrap gap-3 justify-between items-center">
                     <button onclick="addRow()" class="bg-cyan-500 hover:bg-cyan-400 text-black py-2.5 px-5 rounded-lg flex items-center gap-2 font-bold transition shadow-lg shadow-cyan-500/20"><i data-lucide="plus-circle"></i> Добавить строку</button>
@@ -125,7 +126,7 @@
         const ACC_NAMES = { plinth: 'Плинтус кухни (3м)', kick: 'Цоколь ПВХ (3м)', caps: 'Заглушки (торцевые)', strips: 'Планки (соединительные)' };
         let accQty = { plinth: 0, kick: 0, caps: 0, strips: 0 };
         
-        // 3. ИНИЦИАЛИЗАЦИЯ TELEGRAM
+        // 4. ИНИЦИАЛИЗАЦИЯ TELEGRAM
         const tg = window.Telegram.WebApp;
         tg.expand();
 
@@ -205,4 +206,4 @@
         function loadFromLS() {
             const saved = JSON.parse(localStorage.getItem('facadeCalc2026'));
             if(!saved) return;
-            if(saved.globalMatPrice) setGlobalMaterial(saved.globalMatPrice, document.querySelector(`.mat-card[onclick*="${saved.globalMatPrice}"]`) || document.querySelector(
+            if(saved.globalMatPrice) setGlobalMaterial(saved.globalMatPrice, document.querySelector(`.mat-card[onclick*="${saved.globalMatPrice}"]`) || d
