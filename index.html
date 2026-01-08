@@ -10,7 +10,6 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
@@ -55,6 +54,7 @@
             border-radius: 12px;
             background: var(--glass);
             border: 1px solid var(--border);
+            margin-bottom: 20px;
         }
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
         th {
@@ -69,7 +69,7 @@
         }
         td { padding: 10px; border-bottom: 1px solid var(--border); }
         
-        /* --- STYLES FOR INPUTS & SELECTS --- */
+        /* Inputs & Selects */
         input, select {
             background-color: rgba(15, 48, 82, 0.8);
             border: 1px solid var(--border);
@@ -80,12 +80,7 @@
             font-size: 14px;
             transition: all 0.2s;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300d4ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
         }
-        input { background-image: none; }
         
         input:focus, select:focus {
             outline: none;
@@ -111,85 +106,43 @@
         }
         .stepper-btn:active { background: var(--primary); color: black; transform: scale(0.9); }
 
-        /* --- MODAL FOR MESSENGERS --- */
+        /* --- FIXED MODAL STYLES --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            z-index: 60; display: none; justify-content: center; align-items: flex-end;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none; justify-content: center; align-items: flex-end;
         }
         .modal-overlay.open { display: flex; animation: fadeIn 0.3s; }
         
         .modal-content {
-            background: #0f3052; width: 100%; max-width: 500px;
-            border-top-left-radius: 20px; border-top-right-radius: 20px;
-            padding: 30px; border-top: 1px solid var(--primary);
-            transform: translateY(100%); transition: transform 0.3s ease-out;
-            margin-bottom: 0;
-            max-height: 90vh; overflow-y: auto;
+            background: #0f3052; 
+            width: 100%; 
+            max-width: 500px;
+            border-top-left-radius: 20px; 
+            border-top-right-radius: 20px;
+            padding: 25px; 
+            border-top: 1px solid var(--primary);
+            transform: translateY(100%); 
+            transition: transform 0.3s ease-out;
+            padding-bottom: 40px; 
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         }
+        
         @media(min-width: 768px) {
             .modal-overlay { align-items: center; }
-            .modal-content { border-radius: 20px; transform: scale(0.9); border: 1px solid var(--primary); margin-bottom: auto;}
+            .modal-content { 
+                border-radius: 20px; 
+                transform: scale(0.9); 
+                border: 1px solid var(--primary); 
+                margin-bottom: auto;
+            }
         }
         .modal-overlay.open .modal-content { transform: translateY(0); }
         @media(min-width: 768px) { .modal-overlay.open .modal-content { transform: scale(1); } }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- PRINT & PDF CSS --- */
-        #invoice-view {
-            display: none;
-            background: white;
-            color: black;
-            padding: 20px 40px;
-            font-family: 'Inter', sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .invoice-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 11px;
-            border: 2px solid #000;
-        }
-        .invoice-table th {
-            background-color: #f3f4f6;
-            color: black;
-            font-weight: bold;
-            border: 1px solid #000;
-            padding: 8px 4px;
-            text-align: left;
-        }
-        .invoice-table td {
-            border: 1px solid #000;
-            padding: 6px 4px;
-            color: black;
-            vertical-align: middle;
-        }
-        .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: end;
-            border-bottom: 2px solid black;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .invoice-total-block {
-            margin-top: 20px;
-            text-align: right;
-        }
-
-        @media print {
-            body * { visibility: hidden; }
-            #invoice-view, #invoice-view * { visibility: visible; }
-            #invoice-view {
-                display: block !important;
-                position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0;
-            }
-            .no-print { display: none !important; }
-        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen text-sm md:text-base">
@@ -206,68 +159,65 @@
                     </div>
                 </div>
                 
-                <h1 class="text-4xl md:text-6xl font-bold mb-10 neon-text text-center md:text-left text-white">
-                    Калькулятор фасадов кухни
+                <h1 class="text-3xl md:text-6xl font-bold mb-6 neon-text text-center md:text-left text-white">
+                    Калькулятор фасадов
                 </h1>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-                    <div class="mat-card p-6 rounded-2xl bg-gradient-to-br from-[#1e3a8a] to-[#1e40af] active flex flex-col justify-between min-h-[140px]" onclick="setGlobalMaterial(6000, this)">
-                        <div class="flex justify-between items-start">
-                            <span class="font-bold text-2xl">МДФ-ПВХ</span>
-                            <i data-lucide="layers" class="text-white/50 w-8 h-8"></i>
-                        </div>
-                        <div class="mt-4">
-                            <p class="text-sm text-gray-300">Базовое покрытие</p>
-                            <span class="text-cyan-300 font-mono text-xl font-bold">6 000 ₽ <span class="text-xs text-gray-400 font-normal">/ м²</span></span>
-                        </div>
-                    </div>
-                    <div class="mat-card p-6 rounded-2xl bg-gradient-to-br from-[#4c1d95] to-[#6d28d9] flex flex-col justify-between min-h-[140px]" onclick="setGlobalMaterial(8500, this)">
-                        <div class="flex justify-between items-start">
-                            <span class="font-bold text-2xl">Эмаль</span>
-                            <i data-lucide="palette" class="text-white/50 w-8 h-8"></i>
-                        </div>
-                        <div class="mt-4">
-                            <p class="text-sm text-gray-300">Премиум окраска</p>
-                            <span class="text-cyan-300 font-mono text-xl font-bold">8 500 ₽ <span class="text-xs text-gray-400 font-normal">/ м²</span></span>
+                <div class="grid grid-cols-1 gap-4 mb-4">
+                    <div class="mat-card p-5 rounded-2xl bg-gradient-to-br from-[#1e3a8a] to-[#1e40af] active" onclick="setGlobalMaterial(6000, this)">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-xl block">МДФ-ПВХ</span>
+                                <span class="text-cyan-300 font-mono text-lg">6 000 ₽</span>
+                            </div>
+                            <i data-lucide="layers" class="text-white/50 w-6 h-6"></i>
                         </div>
                     </div>
-                    <div class="mat-card p-6 rounded-2xl bg-gradient-to-br from-[#92400e] to-[#b45309] flex flex-col justify-between min-h-[140px]" onclick="setGlobalMaterial(13500, this)">
-                        <div class="flex justify-between items-start">
-                            <span class="font-bold text-2xl">Лак / Шпон</span>
-                            <i data-lucide="gem" class="text-white/50 w-8 h-8"></i>
+                    <div class="mat-card p-5 rounded-2xl bg-gradient-to-br from-[#4c1d95] to-[#6d28d9]" onclick="setGlobalMaterial(8500, this)">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-xl block">Эмаль</span>
+                                <span class="text-cyan-300 font-mono text-lg">8 500 ₽</span>
+                            </div>
+                            <i data-lucide="palette" class="text-white/50 w-6 h-6"></i>
                         </div>
-                        <div class="mt-4">
-                            <p class="text-sm text-gray-300">Люкс материалы</p>
-                            <span class="text-cyan-300 font-mono text-xl font-bold">13 500 ₽ <span class="text-xs text-gray-400 font-normal">/ м²</span></span>
+                    </div>
+                    <div class="mat-card p-5 rounded-2xl bg-gradient-to-br from-[#92400e] to-[#b45309]" onclick="setGlobalMaterial(13500, this)">
+                         <div class="flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-xl block">Лак / Шпон</span>
+                                <span class="text-cyan-300 font-mono text-lg">13 500 ₽</span>
+                            </div>
+                            <i data-lucide="gem" class="text-white/50 w-6 h-6"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main class="flex-grow max-w-[1400px] mx-auto w-full px-2 md:px-6 -mt-6 z-10 space-y-8 pb-32">
+        <main class="flex-grow max-w-[1400px] mx-auto w-full px-2 md:px-6 -mt-6 z-10 space-y-6 pb-32">
             
             <section class="bg-[#0a2540] rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
-                <div class="p-4 bg-[#0f3052] flex flex-wrap gap-3 justify-between items-center">
-                    <button onclick="addRow()" class="bg-cyan-500 hover:bg-cyan-400 text-black py-2.5 px-5 rounded-lg flex items-center gap-2 font-bold transition shadow-lg shadow-cyan-500/20">
-                        <i data-lucide="plus-circle"></i> Добавить строку
+                <div class="p-4 bg-[#0f3052] flex gap-3 justify-between items-center">
+                    <button onclick="addRow()" class="bg-cyan-500 text-black py-2 px-4 rounded-lg flex items-center gap-2 font-bold text-sm">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Добавить
                     </button>
-                    <button onclick="clearAll()" class="text-red-400 hover:text-red-300 flex items-center gap-2 text-sm px-3">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> Очистить все
+                    <button onclick="clearAll()" class="text-red-400 text-sm flex items-center gap-1">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> Сброс
                     </button>
                 </div>
                 <div class="table-container bg-[#0a2540]">
                     <table id="calcTable">
                         <thead>
                             <tr>
-                                <th class="w-10 text-center">#</th>
-                                <th class="w-24">Выс (мм)</th>
-                                <th class="w-24">Шир (мм)</th>
-                                <th class="w-20">Толщ</th>
-                                <th class="w-16">Кол</th>
-                                <th class="min-w-[200px]">Параметры и покраска</th>
-                                <th class="text-right w-32">Сумма</th>
-                                <th class="w-10"></th>
+                                <th class="w-8 text-center">#</th>
+                                <th class="w-20">В (мм)</th>
+                                <th class="w-20">Ш (мм)</th>
+                                <th class="w-16">Т (мм)</th>
+                                <th class="w-12">Шт</th>
+                                <th class="min-w-[180px]">Параметры</th>
+                                <th class="text-right w-24">Сумма</th>
+                                <th class="w-8"></th>
                             </tr>
                         </thead>
                         <tbody id="tableBody"></tbody>
@@ -275,97 +225,61 @@
                 </div>
             </section>
 
-            <section class="bg-white/5 rounded-2xl border border-white/10 p-6">
-                <h3 class="text-xl font-bold mb-6 flex items-center gap-2 text-white">
-                    <div class="bg-white/10 p-1.5 rounded-md"><i data-lucide="package-plus" class="text-cyan-400"></i></div> 
-                    Комплектующие
+            <section class="bg-white/5 rounded-2xl border border-white/10 p-4">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-white">
+                    <i data-lucide="package-plus" class="text-cyan-400 w-5 h-5"></i> Комплектующие
                 </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex flex-col justify-between h-full hover:border-white/20 transition">
-                        <div class="mb-3">
-                            <div class="text-base font-bold">Плинтус кухни</div>
-                            <div class="text-xs text-gray-400">Вставка + осн (3м)</div>
-                            <div class="text-cyan-400 font-mono mt-1">1 200 ₽</div>
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="bg-black/30 p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold">Плинтус (3м)</div>
+                            <div class="text-cyan-400 font-mono text-xs">1 200 ₽</div>
                         </div>
-                        <div class="flex items-center justify-between bg-white/5 rounded-lg p-1.5">
-                            <div class="stepper-btn hover:bg-white/10" onclick="updateAcc('plinth', -1)">-</div>
-                            <span id="qty-plinth" class="font-bold w-8 text-center text-lg">0</span>
-                            <div class="stepper-btn hover:bg-white/10" onclick="updateAcc('plinth', 1)">+</div>
-                        </div>
-                    </div>
-                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex flex-col justify-between h-full hover:border-white/20 transition">
-                        <div class="mb-3">
-                            <div class="text-base font-bold">Цоколь ПВХ</div>
-                            <div class="text-xs text-gray-400">С уплотнит. (3м)</div>
-                            <div class="text-cyan-400 font-mono mt-1">1 500 ₽</div>
-                        </div>
-                        <div class="flex items-center justify-between bg-white/5 rounded-lg p-1.5">
-                            <div class="stepper-btn hover:bg-white/10" onclick="updateAcc('kick', -1)">-</div>
-                            <span id="qty-kick" class="font-bold w-8 text-center text-lg">0</span>
-                            <div class="stepper-btn hover:bg-white/10" onclick="updateAcc('kick', 1)">+</div>
+                        <div class="flex items-center gap-3">
+                            <div class="stepper-btn" onclick="updateAcc('plinth', -1)">-</div>
+                            <span id="qty-plinth" class="font-bold w-4 text-center">0</span>
+                            <div class="stepper-btn" onclick="updateAcc('plinth', 1)">+</div>
                         </div>
                     </div>
-                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex flex-col justify-between h-full hover:border-white/20 transition">
-                        <div class="mb-3">
-                            <div class="text-base font-bold">Заглушки</div>
-                            <div class="text-xs text-gray-400">Торцевые (металл)</div>
-                            <div class="text-cyan-400 font-mono mt-1">300 ₽</div>
+                    
+                     <div class="bg-black/30 p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold">Цоколь (3м)</div>
+                            <div class="text-cyan-400 font-mono text-xs">1 500 ₽</div>
                         </div>
-                        <div class="flex items-center justify-between bg-white/5 rounded-lg p-1.5">
-                            <div class="stepper-btn hover:bg-white/10" onclick="updateAcc('caps', -1)">-</div>
-                            <span id="qty-caps" class="font-bold w-8 text-center text-lg">0</span>
-                            <div class="stepper-btn hover:bg-white/10" onclick="updateAcc('caps', 1)">+</div>
+                        <div class="flex items-center gap-3">
+                            <div class="stepper-btn" onclick="updateAcc('kick', -1)">-</div>
+                            <span id="qty-kick" class="font-bold w-4 text-center">0</span>
+                            <div class="stepper-btn" onclick="updateAcc('kick', 1)">+</div>
                         </div>
                     </div>
-                    <div class="bg-black/30 p-4 rounded-xl border border-white/5 flex flex-col justify-between h-full hover:border-white/20 transition">
-                        <div class="mb-3">
-                            <div class="text-base font-bold">Планки</div>
-                            <div class="text-xs text-gray-400">Соединит. (угол/прям)</div>
-                            <div class="text-cyan-400 font-mono mt-1">400 ₽</div>
+
+                    <div class="bg-black/30 p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold">Заглушки</div>
+                            <div class="text-cyan-400 font-mono text-xs">300 ₽</div>
                         </div>
-                        <div class="flex items-center justify-between bg-white/5 rounded-lg p-1.5">
-                            <div class="stepper-btn hover:bg-white/10" onclick="updateAcc('strips', -1)">-</div>
-                            <span id="qty-strips" class="font-bold w-8 text-center text-lg">0</span>
-                            <div class="stepper-btn hover:bg-white/10" onclick="updateAcc('strips', 1)">+</div>
+                        <div class="flex items-center gap-3">
+                            <div class="stepper-btn" onclick="updateAcc('caps', -1)">-</div>
+                            <span id="qty-caps" class="font-bold w-4 text-center">0</span>
+                            <div class="stepper-btn" onclick="updateAcc('caps', 1)">+</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="bg-gradient-to-r from-[#0f3052] to-[#0a2540] p-8 rounded-2xl border border-cyan-500/30 neon-box">
-                <div class="flex flex-col gap-3">
-                    <div class="flex justify-between text-gray-400">
-                        <span>Стоимость фасадов:</span>
-                        <span id="facadeTotal" class="font-mono text-white">0 ₽</span>
-                    </div>
-                    <div class="flex justify-between text-gray-400">
-                        <span>Комплектующие:</span>
-                        <span id="accTotal" class="font-mono text-white">0 ₽</span>
-                    </div>
-                    <div class="flex justify-between text-gray-400">
-                        <span>НДС (22%):</span>
-                        <span id="vatTotal" class="font-mono text-white">0 ₽</span>
-                    </div>
-                    <div class="h-px bg-gray-600 my-4"></div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-2xl font-bold">ИТОГО К ОПЛАТЕ:</span>
-                        <span id="grandTotal" class="text-4xl font-bold text-cyan-400 neon-text">0 ₽</span>
-                    </div>
+            <section class="bg-gradient-to-r from-[#0f3052] to-[#0a2540] p-6 rounded-2xl border border-cyan-500/30 neon-box">
+                <div class="flex justify-between items-center">
+                    <span class="text-xl font-bold">ИТОГО:</span>
+                    <span id="grandTotal" class="text-3xl font-bold text-cyan-400 neon-text">0 ₽</span>
                 </div>
+                <div class="text-xs text-gray-400 mt-2 text-right">Включая НДС 22%</div>
             </section>
 
-            <div class="fixed bottom-0 left-0 w-full bg-[#0a2540]/90 backdrop-blur-md border-t border-white/10 p-4 z-50">
-                <div class="max-w-[1400px] mx-auto flex flex-col md:flex-row gap-3 justify-end items-center">
-                    <button onclick="handlePrint()" class="w-full md:w-auto bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition">
-                        <i data-lucide="printer"></i> <span class="md:hidden">Печать</span><span class="hidden md:inline">Распечатать</span>
-                    </button>
-                    <button onclick="downloadPDF()" class="w-full md:w-auto bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition">
-                        <i data-lucide="file-down"></i> PDF
-                    </button>
-                    <button onclick="toggleModal(true)" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-indigo-500/30">
-                        <i data-lucide="share-2"></i> Отправить расчет
-                    </button>
-                </div>
+            <div class="fixed bottom-0 left-0 w-full bg-[#0a2540]/95 backdrop-blur-md border-t border-white/10 p-4 z-50">
+                <button onclick="toggleModal(true)" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-indigo-500/30 text-lg">
+                    <i data-lucide="share-2"></i> Отправить расчет
+                </button>
             </div>
         </main>
     </div>
@@ -373,38 +287,40 @@
     <div id="messengerModal" class="modal-overlay" onclick="if(event.target === this) toggleModal(false)">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-white">Отправить клиенту</h3>
-                <button onclick="toggleModal(false)" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+                <h3 class="text-xl font-bold text-white">Выберите получателя</h3>
+                <button onclick="toggleModal(false)" class="bg-white/10 p-2 rounded-full text-white hover:bg-white/20"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="space-y-4">
-                <button onclick="sendToMessenger('telegram')" class="w-full p-4 rounded-xl bg-[#229ED9] hover:bg-[#1e8dbf] flex items-center justify-center gap-3 text-white font-bold text-lg transition shadow-lg">
-                    <i data-lucide="send"></i> Telegram (Выбрать)
+            
+            <div class="space-y-3">
+                
+                <button onclick="sendToMessenger('telegram')" style="background-color: #229ED9 !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
+                    <i data-lucide="send"></i> Telegram
                 </button>
-                <button onclick="sendToMessenger('whatsapp')" class="w-full p-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] flex items-center justify-center gap-3 text-white font-bold text-lg transition shadow-lg">
+                
+                <button onclick="sendToMessenger('whatsapp')" style="background-color: #25D366 !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
                     <i data-lucide="message-circle"></i> WhatsApp
                 </button>
-                <button onclick="sendToMessenger('email')" class="w-full p-4 rounded-xl bg-gray-600 hover:bg-gray-500 flex items-center justify-center gap-3 text-white font-bold text-lg transition shadow-lg">
+
+                <button onclick="sendToMessenger('email')" style="background-color: #6b7280 !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
                     <i data-lucide="mail"></i> Email
                 </button>
-                <button onclick="sendToMessenger('max')" class="w-full p-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 flex items-center justify-center gap-3 text-white font-bold text-lg transition shadow-lg">
+                
+                <button onclick="sendToMessenger('max')" style="background: linear-gradient(90deg, #7c3aed, #4f46e5) !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
                     <i data-lucide="zap"></i> MAX (Копировать)
                 </button>
+
             </div>
-            <p class="text-gray-400 text-center text-xs mt-6">Telegram позволит выбрать клиента из списка чатов</p>
         </div>
     </div>
 
-    <div id="invoice-view"></div>
-
     <script>
-        // Инициализация Telegram App
         const tg = window.Telegram.WebApp;
         tg.expand();
         
         const VAT_RATE = 0.22;
         let globalMatPrice = 6000;
         const ACC_PRICES = { plinth: 1200, kick: 1500, caps: 300, strips: 400 };
-        const ACC_NAMES = { plinth: 'Плинтус кухни (3м)', kick: 'Цоколь ПВХ (3м)', caps: 'Заглушки (торцевые)', strips: 'Планки (соединительные)' };
+        const ACC_NAMES = { plinth: 'Плинтус', kick: 'Цоколь', caps: 'Заглушки', strips: 'Планки' };
         let accQty = { plinth: 0, kick: 0, caps: 0, strips: 0 };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -444,25 +360,20 @@
                 <td>
                     <div class="flex flex-col gap-2">
                         <select class="inp-mill" onchange="calcRow(this)">
-                            <option value="1" ${v.m==1?'selected':''}>Без фрезеровки</option>
-                            <option value="1.3" ${v.m==1.3?'selected':''}>Простая x1.3</option>
-                            <option value="1.8" ${v.m==1.8?'selected':''}>Сложная x1.8</option>
+                            <option value="1" ${v.m==1?'selected':''}>Нет фрез.</option>
+                            <option value="1.3" ${v.m==1.3?'selected':''}>Фрез x1.3</option>
+                            <option value="1.8" ${v.m==1.8?'selected':''}>Фрез x1.8</option>
                         </select>
                         <select class="inp-paint" onchange="calcRow(this)">
-                            <option value="1" ${v.p==1?'selected':''}>Без покраски</option>
-                            <option value="1.2" ${v.p==1.2?'selected':''}>Одна сторона</option>
-                            <option value="1.5" ${v.p==1.5?'selected':''}>Две стороны</option>
-                        </select>
-                        <select class="inp-vendor" onchange="calcRow(this)">
-                            <option value="1" ${v.vendor==1?'selected':''}>Краска: РФ (Стандарт)</option>
-                            <option value="1.15" ${v.vendor==1.15?'selected':''}>Краска: Китай (x1.15)</option>
-                            <option value="1.35" ${v.vendor==1.35?'selected':''}>Краска: Италия (x1.35)</option>
+                            <option value="1" ${v.p==1?'selected':''}>Без покр.</option>
+                            <option value="1.2" ${v.p==1.2?'selected':''}>1 стор.</option>
+                            <option value="1.5" ${v.p==1.5?'selected':''}>2 стор.</option>
                         </select>
                     </div>
                 </td>
-                <td class="text-right font-mono text-cyan-300 text-lg font-bold row-total">0</td>
+                <td class="text-right font-mono text-cyan-300 font-bold row-total">0</td>
                 <td class="text-center">
-                    <button onclick="removeRow(this)" class="text-red-400 p-2 hover:bg-red-500/20 rounded opacity-0 group-hover:opacity-100 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <button onclick="removeRow(this)" class="text-red-400 p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </td>
             `;
 
@@ -495,9 +406,8 @@
             const q = parseInt(tr.querySelector('.inp-q').value) || 0;
             const mill = parseFloat(tr.querySelector('.inp-mill').value);
             const paint = parseFloat(tr.querySelector('.inp-paint').value);
-            const vendor = parseFloat(tr.querySelector('.inp-vendor').value);
 
-            let price = (h * w * globalMatPrice * mill * paint * vendor * q);
+            let price = (h * w * globalMatPrice * mill * paint * q);
 
             tr.querySelector('.row-total').textContent = Math.round(price).toLocaleString();
             tr.dataset.val = price;
@@ -520,9 +430,6 @@
             const vat = subtotal * VAT_RATE;
             const grandTotal = subtotal + vat;
 
-            document.getElementById('facadeTotal').textContent = Math.round(facadeSum).toLocaleString() + ' ₽';
-            document.getElementById('accTotal').textContent = Math.round(accSum).toLocaleString() + ' ₽';
-            document.getElementById('vatTotal').textContent = Math.round(vat).toLocaleString() + ' ₽';
             document.getElementById('grandTotal').textContent = Math.round(grandTotal).toLocaleString() + ' ₽';
         }
 
@@ -535,8 +442,7 @@
                     d: tr.querySelector('.inp-d').value,
                     q: tr.querySelector('.inp-q').value,
                     m: tr.querySelector('.inp-mill').value,
-                    p: tr.querySelector('.inp-paint').value,
-                    vendor: tr.querySelector('.inp-vendor').value
+                    p: tr.querySelector('.inp-paint').value
                 });
             });
             const data = { rows, accQty, globalMatPrice };
@@ -546,12 +452,8 @@
         function loadFromLS() {
             const saved = JSON.parse(localStorage.getItem('facadeCalc2026'));
             if(!saved) return;
-            if(saved.globalMatPrice) {
-                 setGlobalMaterial(saved.globalMatPrice, document.querySelector(`.mat-card[onclick*="${saved.globalMatPrice}"]`) || document.querySelector('.mat-card'));
-            }
-            if(saved.accQty) {
-                Object.keys(saved.accQty).forEach(k => { accQty[k] = saved.accQty[k]; document.getElementById(`qty-${k}`).textContent = accQty[k]; });
-            }
+            if(saved.globalMatPrice) setGlobalMaterial(saved.globalMatPrice, document.querySelector('.mat-card'));
+            if(saved.accQty) Object.keys(saved.accQty).forEach(k => { accQty[k] = saved.accQty[k]; document.getElementById(`qty-${k}`).textContent = accQty[k]; });
             if(saved.rows && saved.rows.length > 0) {
                 document.getElementById('tableBody').innerHTML = '';
                 saved.rows.forEach(r => addRow(r));
@@ -566,161 +468,35 @@
             calculateAll();
         }
 
-        // --- INVOICE HTML ---
-        function generateInvoiceHTML() {
-            const date = new Date().toLocaleDateString();
-            const total = document.getElementById('grandTotal').textContent;
-            
-            let html = `
-                <div class="invoice-header">
-                    <div>
-                        <h1 style="font-size: 24px; font-weight: bold;">СМЕТА ЗАКАЗА</h1>
-                        <p>Дата: ${date}</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <b>Поставщик:</b> Фасады.Pro<br>
-                        Калькулятор фасадов кухни
-                    </div>
-                </div>
-                
-                <table class="invoice-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 5%">#</th>
-                            <th style="width: 20%">Размер (мм)</th>
-                            <th style="width: 10%">Толщ</th>
-                            <th style="width: 10%">Кол</th>
-                            <th style="width: 40%">Детализация</th>
-                            <th style="width: 15%; text-align: right">Сумма</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            document.querySelectorAll('#tableBody tr').forEach((tr, i) => {
-                const h = tr.querySelector('.inp-h').value;
-                const w = tr.querySelector('.inp-w').value;
-                const d = tr.querySelector('.inp-d').value;
-                const q = tr.querySelector('.inp-q').value;
-                const mill = tr.querySelector('.inp-mill option:checked').text;
-                const paint = tr.querySelector('.inp-paint option:checked').text;
-                const vendor = tr.querySelector('.inp-vendor option:checked').text;
-                const price = tr.querySelector('.row-total').textContent;
-
-                html += `
-                    <tr>
-                        <td style="text-align: center">${i+1}</td>
-                        <td>${h} x ${w}</td>
-                        <td style="text-align: center">${d}</td>
-                        <td style="text-align: center">${q}</td>
-                        <td>
-                            ${mill}<br>
-                            ${paint}<br>
-                            <b>${vendor}</b>
-                        </td>
-                        <td style="text-align: right; font-weight: bold">${price}</td>
-                    </tr>
-                `;
-            });
-
-            for (const [key, val] of Object.entries(accQty)) {
-                if (val > 0) {
-                    const price = (val * ACC_PRICES[key]).toLocaleString() + ' ₽';
-                    html += `
-                        <tr>
-                            <td style="text-align: center">-</td>
-                            <td>${ACC_NAMES[key]}</td>
-                            <td style="text-align: center">-</td>
-                            <td style="text-align: center">${val}</td>
-                            <td>Комплектующие</td>
-                            <td style="text-align: right; font-weight: bold">${price}</td>
-                        </tr>
-                    `;
-                }
-            }
-
-            html += `
-                    </tbody>
-                </table>
-                
-                <div class="invoice-total-block">
-                    <p>Стоимость фасадов: ${document.getElementById('facadeTotal').textContent}</p>
-                    <p>Комплектующие: ${document.getElementById('accTotal').textContent}</p>
-                    <p>НДС 22%: ${document.getElementById('vatTotal').textContent}</p>
-                    <h2 style="font-size: 22px; font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">ИТОГО: ${total}</h2>
-                </div>
-            `;
-            return html;
-        }
-
-        // --- PDF DOWNLOAD ---
-        function downloadPDF() {
-            const content = generateInvoiceHTML();
-            const view = document.getElementById('invoice-view');
-            view.innerHTML = content;
-            
-            const app = document.getElementById('app-ui');
-            app.style.display = 'none';
-            view.style.display = 'block';
-
-            const opt = {
-                margin:       5,
-                filename:     'Smeta_Kuhni.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['css', 'legacy'] }
-            };
-
-            html2pdf().set(opt).from(view).save().then(() => {
-                app.style.display = 'block';
-                view.style.display = 'none';
-            }).catch(err => {
-                alert('Ошибка при создании PDF. Попробуйте скриншот.');
-                app.style.display = 'block';
-                view.style.display = 'none';
-            });
-        }
-
-        // --- PRINT ---
-        function handlePrint() {
-            document.getElementById('invoice-view').innerHTML = generateInvoiceHTML();
-            window.print();
-        }
-
-        // --- MODAL LOGIC ---
+        // --- MODAL & SENDING ---
         function toggleModal(show) {
             const modal = document.getElementById('messengerModal');
             if (show) {
                 modal.classList.add('open');
-                gsap.from("#messengerModal button", {
-                    y: 20, opacity: 0, stagger: 0.1, duration: 0.3
+                gsap.from(".modal-content button", {
+                    y: 20, opacity: 0, stagger: 0.05, duration: 0.3
                 });
             } else {
                 modal.classList.remove('open');
             }
         }
 
-        // --- SEND TO CLIENT LOGIC ---
         function getOrderText() {
             const total = document.getElementById('grandTotal').textContent;
-            let body = `Ваш расчет стоимости фасадов:\n\n`;
+            let body = `Заказ фасадов:\n\n`;
             
             document.querySelectorAll('#tableBody tr').forEach((tr, i) => {
                 const h = tr.querySelector('.inp-h').value;
                 const w = tr.querySelector('.inp-w').value;
                 const q = tr.querySelector('.inp-q').value;
-                const vendor = tr.querySelector('.inp-vendor option:checked').text.split('(')[0].trim();
                 const price = tr.querySelector('.row-total').textContent;
-                body += `${i+1}. ${h}x${w}, ${q}шт. (${vendor}) - ${price}\n`;
+                body += `${i+1}. ${h}x${w}, ${q}шт. - ${price}\n`;
             });
 
             if(accQty.plinth > 0) body += `Плинтус: ${accQty.plinth} шт.\n`;
             if(accQty.kick > 0) body += `Цоколь: ${accQty.kick} шт.\n`;
             if(accQty.caps > 0) body += `Заглушки: ${accQty.caps} шт.\n`;
-            if(accQty.strips > 0) body += `Планки: ${accQty.strips} шт.\n`;
-
-            body += `\n💰 ИТОГО: ${total}`;
+            body += `\nИТОГО: ${total}`;
             return body;
         }
 
@@ -729,45 +505,28 @@
             const encodedText = encodeURIComponent(text);
             
             if (type === 'telegram') {
-                // Telegram Share Link - открывает выбор чата
-                // Параметр url обязателен, оставляем пустым или ставим ссылку на сайт
                 const url = `https://t.me/share/url?url=${encodeURIComponent(' ')}&text=${encodedText}`;
-                
-                // Пробуем открыть через WebApp API, если нет - через window.open
-                if(tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                   tg.openTelegramLink(url);
-                } else {
-                   window.open(url, '_blank');
-                }
+                tg.openTelegramLink(url);
             } 
             else if (type === 'whatsapp') {
-                // WhatsApp Click to Chat (без номера = выбор контакта)
                 window.open(`https://wa.me/?text=${encodedText}`, '_blank');
-            } 
+            }
             else if (type === 'email') {
-                // Mailto link
                 window.open(`mailto:?subject=Расчет фасадов&body=${encodedText}`, '_self');
             }
             else if (type === 'max') {
-                // Для MAX копируем в буфер, так как нет публичной схемы URL
                 if(navigator.clipboard) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        alert('Текст расчета скопирован! Откройте MAX и вставьте сообщение.');
-                    }).catch(err => {
-                        alert('Не удалось скопировать. Пожалуйста, скопируйте вручную.');
-                    });
+                    navigator.clipboard.writeText(text).then(() => alert('Текст скопирован!'));
                 } else {
-                    // Fallback для старых браузеров
-                    const textarea = document.createElement('textarea');
-                    textarea.value = text;
-                    document.body.appendChild(textarea);
-                    textarea.select();
+                    const el = document.createElement('textarea');
+                    el.value = text;
+                    document.body.appendChild(el);
+                    el.select();
                     document.execCommand('copy');
-                    document.body.removeChild(textarea);
-                    alert('Текст расчета скопирован! Откройте MAX и вставьте сообщение.');
+                    document.body.removeChild(el);
+                    alert('Текст скопирован!');
                 }
             }
-            
             toggleModal(false);
         }
     </script>
