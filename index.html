@@ -80,7 +80,12 @@
             font-size: 14px;
             transition: all 0.2s;
             appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300d4ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
         }
+        input { background-image: none; }
         
         input:focus, select:focus {
             outline: none;
@@ -127,6 +132,7 @@
             transition: transform 0.3s ease-out;
             padding-bottom: 40px; 
             box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            max-height: 80vh; overflow-y: auto;
         }
         
         @media(min-width: 768px) {
@@ -215,7 +221,7 @@
                                 <th class="w-20">Ш (мм)</th>
                                 <th class="w-16">Т (мм)</th>
                                 <th class="w-12">Шт</th>
-                                <th class="min-w-[180px]">Параметры</th>
+                                <th class="min-w-[180px]">Параметры и покраска</th>
                                 <th class="text-right w-24">Сумма</th>
                                 <th class="w-8"></th>
                             </tr>
@@ -265,6 +271,18 @@
                             <div class="stepper-btn" onclick="updateAcc('caps', 1)">+</div>
                         </div>
                     </div>
+
+                    <div class="bg-black/30 p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold">Планки</div>
+                            <div class="text-cyan-400 font-mono text-xs">400 ₽</div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="stepper-btn" onclick="updateAcc('strips', -1)">-</div>
+                            <span id="qty-strips" class="font-bold w-4 text-center">0</span>
+                            <div class="stepper-btn" onclick="updateAcc('strips', 1)">+</div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -301,8 +319,8 @@
                     <i data-lucide="message-circle"></i> WhatsApp
                 </button>
 
-                <button onclick="sendToMessenger('email')" style="background-color: #6b7280 !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
-                    <i data-lucide="mail"></i> Email
+                <button onclick="sendToMessenger('yandex')" style="background-color: #fc3f1d !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
+                    <i data-lucide="mail"></i> Яндекс Почта
                 </button>
                 
                 <button onclick="sendToMessenger('max')" style="background: linear-gradient(90deg, #7c3aed, #4f46e5) !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
@@ -345,6 +363,7 @@
             
             const v = data || { h: 715, w: 396, d: 16, q: 1, m: 1, p: 1, vendor: 1 };
 
+            // ВОЗВРАЩЕНО: Select для Производителя (vendor)
             tr.innerHTML = `
                 <td class="text-gray-500 text-center index-cell">#</td>
                 <td><input type="number" value="${v.h}" class="inp-h" oninput="calcRow(this)"></td>
@@ -368,6 +387,11 @@
                             <option value="1" ${v.p==1?'selected':''}>Без покр.</option>
                             <option value="1.2" ${v.p==1.2?'selected':''}>1 стор.</option>
                             <option value="1.5" ${v.p==1.5?'selected':''}>2 стор.</option>
+                        </select>
+                        <select class="inp-vendor" onchange="calcRow(this)">
+                            <option value="1" ${v.vendor==1?'selected':''}>РФ (Стандарт)</option>
+                            <option value="1.15" ${v.vendor==1.15?'selected':''}>Китай (x1.15)</option>
+                            <option value="1.35" ${v.vendor==1.35?'selected':''}>Италия (x1.35)</option>
                         </select>
                     </div>
                 </td>
@@ -406,8 +430,10 @@
             const q = parseInt(tr.querySelector('.inp-q').value) || 0;
             const mill = parseFloat(tr.querySelector('.inp-mill').value);
             const paint = parseFloat(tr.querySelector('.inp-paint').value);
+            // ВОЗВРАЩЕНО: Учет вендора в формуле
+            const vendor = parseFloat(tr.querySelector('.inp-vendor').value);
 
-            let price = (h * w * globalMatPrice * mill * paint * q);
+            let price = (h * w * globalMatPrice * mill * paint * vendor * q);
 
             tr.querySelector('.row-total').textContent = Math.round(price).toLocaleString();
             tr.dataset.val = price;
@@ -442,7 +468,8 @@
                     d: tr.querySelector('.inp-d').value,
                     q: tr.querySelector('.inp-q').value,
                     m: tr.querySelector('.inp-mill').value,
-                    p: tr.querySelector('.inp-paint').value
+                    p: tr.querySelector('.inp-paint').value,
+                    vendor: tr.querySelector('.inp-vendor').value // Сохраняем вендора
                 });
             });
             const data = { rows, accQty, globalMatPrice };
@@ -489,13 +516,16 @@
                 const h = tr.querySelector('.inp-h').value;
                 const w = tr.querySelector('.inp-w').value;
                 const q = tr.querySelector('.inp-q').value;
+                const vendor = tr.querySelector('.inp-vendor option:checked').text;
                 const price = tr.querySelector('.row-total').textContent;
-                body += `${i+1}. ${h}x${w}, ${q}шт. - ${price}\n`;
+                body += `${i+1}. ${h}x${w}, ${q}шт. (${vendor}) - ${price}\n`;
             });
 
             if(accQty.plinth > 0) body += `Плинтус: ${accQty.plinth} шт.\n`;
             if(accQty.kick > 0) body += `Цоколь: ${accQty.kick} шт.\n`;
             if(accQty.caps > 0) body += `Заглушки: ${accQty.caps} шт.\n`;
+            if(accQty.strips > 0) body += `Планки: ${accQty.strips} шт.\n`;
+            
             body += `\nИТОГО: ${total}`;
             return body;
         }
@@ -511,8 +541,10 @@
             else if (type === 'whatsapp') {
                 window.open(`https://wa.me/?text=${encodedText}`, '_blank');
             }
-            else if (type === 'email') {
-                window.open(`mailto:?subject=Расчет фасадов&body=${encodedText}`, '_self');
+            // ОБНОВЛЕНО: Открытие Яндекс Почты
+            else if (type === 'yandex') {
+                const yandexUrl = `https://mail.yandex.ru/compose?subject=${encodeURIComponent("Расчет фасадов")}&body=${encodedText}`;
+                window.open(yandexUrl, '_blank');
             }
             else if (type === 'max') {
                 if(navigator.clipboard) {
