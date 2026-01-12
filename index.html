@@ -3,227 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Калькулятор фасадов кухни</title>
-    <meta name="theme-color" content="#0a2540">
+    <title>Калькулятор Gloss Master</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-dark: #0a2540;
-            --primary: #00d4ff;
-            --accent: #667eea;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-page: #f9fafb;
+            --brand-red: #b91c1c; 
+            --brand-dark: #1f2937;
+            --border-color: #e5e7eb;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: white;
-            overflow-x: hidden;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--brand-dark);
             -webkit-tap-highlight-color: transparent;
+            /* Исправление прокрутки в Telegram iOS */
+            padding-bottom: 20px;
         }
 
-        /* --- UI Styles --- */
-        .neon-text { text-shadow: 0 0 15px rgba(0, 212, 255, 0.6); }
-        .neon-box { box-shadow: 0 0 20px rgba(0, 212, 255, 0.15); }
-        
         .mat-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease-in-out;
             cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
+            border: 2px solid transparent;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .mat-card:hover { transform: translateY(-5px); }
-        .mat-card.active {
-            border: 2px solid var(--primary);
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
-            transform: scale(1.02);
-        }
-        
-        /* Table Styles (Screen) */
+        .mat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .mat-card.active { border-color: var(--brand-red); background-color: #fef2f2; }
+        .mat-card.active .check-icon { opacity: 1; }
+        .check-icon { opacity: 0; transition: opacity 0.2s; color: var(--brand-red); }
+
         .table-container {
             overflow-x: auto;
-            border-radius: 12px;
-            background: var(--glass);
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         }
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        th {
-            position: sticky;
-            top: 0;
-            background: #0f3052;
-            padding: 14px;
-            text-align: left;
-            font-size: 0.9rem;
-            color: var(--primary);
-            z-index: 10;
-        }
-        td { padding: 10px; border-bottom: 1px solid var(--border); }
+        th { background: #f3f4f6; padding: 12px; text-align: left; font-size: 0.85rem; text-transform: uppercase; color: #6b7280; font-weight: 600; }
+        td { padding: 8px 12px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
         
-        /* Inputs & Selects */
         input, select {
-            background-color: rgba(15, 48, 82, 0.8);
-            border: 1px solid var(--border);
-            color: white;
-            padding: 10px 12px;
-            border-radius: 8px;
-            width: 100%;
-            font-size: 14px;
-            transition: all 0.2s;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300d4ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
+            background-color: #fff; border: 1px solid #d1d5db; color: #111827;
+            padding: 8px 10px; border-radius: 6px; width: 100%; font-size: 14px; transition: border-color 0.2s;
         }
-        input { background-image: none; }
-        
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
-            background-color: rgba(15, 48, 82, 1);
-        }
-        
-        select option {
-            background-color: #0f3052;
-            color: white;
-            padding: 10px;
-        }
+        input:focus, select:focus { outline: none; border-color: var(--brand-red); box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.1); }
 
         .stepper-btn {
-            width: 36px; height: 36px;
+            width: 32px; height: 32px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.1);
-            cursor: pointer;
-            user-select: none;
-            transition: 0.2s;
+            border-radius: 6px; background: #f3f4f6; cursor: pointer; user-select: none; transition: 0.2s;
+            border: 1px solid #e5e7eb;
         }
-        .stepper-btn:active { background: var(--primary); color: black; transform: scale(0.9); }
+        .stepper-btn:hover { background: #e5e7eb; }
+        .stepper-btn:active { background: var(--brand-red); color: white; }
 
-        /* --- FIXED MODAL STYLES --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: none; justify-content: center; align-items: flex-end;
-        }
-        .modal-overlay.open { display: flex; animation: fadeIn 0.3s; }
-        
-        .modal-content {
-            background: #0f3052; 
-            width: 100%; 
-            max-width: 500px;
-            border-top-left-radius: 20px; 
-            border-top-right-radius: 20px;
-            padding: 25px; 
-            border-top: 1px solid var(--primary);
-            transform: translateY(100%); 
-            transition: transform 0.3s ease-out;
-            padding-bottom: 40px; 
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
-            max-height: 80vh; overflow-y: auto;
+        .btn-primary { background-color: var(--brand-red); color: white; }
+        .btn-primary:hover { background-color: #991b1b; }
+
+        /* PDF Styles */
+        #invoice-view { 
+            position: fixed; top: 0; left: 0; width: 100%; height: auto; min-height: 100vh;
+            background: white; z-index: 9999; padding: 40px; color: black; display: none;
         }
         
-        @media(min-width: 768px) {
-            .modal-overlay { align-items: center; }
-            .modal-content { 
-                border-radius: 20px; 
-                transform: scale(0.9); 
-                border: 1px solid var(--primary); 
-                margin-bottom: auto;
-            }
+        .invoice-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; border: 1px solid #000; }
+        .invoice-table th, .invoice-table td { border: 1px solid #000; padding: 5px; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #invoice-view, #invoice-view * { visibility: visible; display: block !important; }
+            #invoice-view { position: absolute; top: 0; left: 0; }
         }
-        .modal-overlay.open .modal-content { transform: translateY(0); }
-        @media(min-width: 768px) { .modal-overlay.open .modal-content { transform: scale(1); } }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
     </style>
 </head>
-<body class="flex flex-col min-h-screen text-sm md:text-base">
+<body class="flex flex-col min-h-screen">
 
-    <div id="app-ui">
-        <header class="relative p-6 md:p-10">
-            <div class="absolute inset-0 bg-gradient-to-b from-blue-900/80 to-[#0a2540] z-[-1]"></div>
-            
-            <div class="max-w-7xl mx-auto">
-                <div class="flex justify-between items-center mb-8">
-                    <div class="flex items-center gap-2">
-                        <div class="bg-cyan-500 p-2 rounded-lg text-black"><i data-lucide="layout-grid"></i></div>
-                        <span class="font-bold tracking-wider text-xl">FASADY<span class="text-cyan-400">.PRO</span></span>
-                    </div>
+    <div id="app-ui" class="pb-24">
+        <div class="bg-white border-b border-gray-200 py-6 mb-8">
+            <div class="max-w-7xl mx-auto px-4 md:px-6">
+                <div class="font-bold text-2xl tracking-tight text-gray-900">
+                    <span class="text-red-700">Gloss</span> Master
                 </div>
-                
-                <h1 class="text-3xl md:text-6xl font-bold mb-6 neon-text text-center md:text-left text-white">
-                    Калькулятор фасадов
-                </h1>
-                
-                <div class="grid grid-cols-1 gap-4 mb-4">
-                    <div class="mat-card p-5 rounded-2xl bg-gradient-to-br from-[#1e3a8a] to-[#1e40af] active" onclick="setGlobalMaterial(6000, this)">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <span class="font-bold text-xl block">МДФ-ПВХ</span>
-                                <span class="text-cyan-300 font-mono text-lg">6 000 ₽</span>
-                            </div>
-                            <i data-lucide="layers" class="text-white/50 w-6 h-6"></i>
-                        </div>
-                    </div>
-                    <div class="mat-card p-5 rounded-2xl bg-gradient-to-br from-[#4c1d95] to-[#6d28d9]" onclick="setGlobalMaterial(8500, this)">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <span class="font-bold text-xl block">Эмаль</span>
-                                <span class="text-cyan-300 font-mono text-lg">8 500 ₽</span>
-                            </div>
-                            <i data-lucide="palette" class="text-white/50 w-6 h-6"></i>
-                        </div>
-                    </div>
-                    <div class="mat-card p-5 rounded-2xl bg-gradient-to-br from-[#92400e] to-[#b45309]" onclick="setGlobalMaterial(13500, this)">
-                         <div class="flex justify-between items-center">
-                            <div>
-                                <span class="font-bold text-xl block">Лак / Шпон</span>
-                                <span class="text-cyan-300 font-mono text-lg">13 500 ₽</span>
-                            </div>
-                            <i data-lucide="gem" class="text-white/50 w-6 h-6"></i>
-                        </div>
-                    </div>
+                <h1 class="text-2xl md:text-3xl font-light text-gray-600">Калькулятор фасадов (B2B)</h1>
+            </div>
+        </div>
+
+        <main class="max-w-7xl mx-auto px-2 md:px-6 space-y-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="mat-card p-5 rounded-xl active relative" onclick="setGlobalMaterial(4500, this)">
+                    <div class="absolute top-4 right-4 check-icon"><i data-lucide="check-circle-2"></i></div>
+                    <h3 class="font-bold text-lg text-gray-800">Эмаль Матовая</h3>
+                    <div class="mt-2 text-red-700 font-bold text-2xl">4 500 ₽ <span class="text-xs text-gray-400 font-normal">/ м²</span></div>
+                </div>
+                <div class="mat-card p-5 rounded-xl relative" onclick="setGlobalMaterial(5500, this)">
+                    <div class="absolute top-4 right-4 check-icon"><i data-lucide="check-circle-2"></i></div>
+                    <h3 class="font-bold text-lg text-gray-800">Эмаль Глянец</h3>
+                    <div class="mt-2 text-red-700 font-bold text-2xl">5 500 ₽ <span class="text-xs text-gray-400 font-normal">/ м²</span></div>
+                </div>
+                <div class="mat-card p-5 rounded-xl relative" onclick="setGlobalMaterial(8500, this)">
+                    <div class="absolute top-4 right-4 check-icon"><i data-lucide="check-circle-2"></i></div>
+                    <h3 class="font-bold text-lg text-gray-800">Шпон / Спецэффекты</h3>
+                    <div class="mt-2 text-red-700 font-bold text-2xl">8 500 ₽ <span class="text-xs text-gray-400 font-normal">/ м²</span></div>
                 </div>
             </div>
-        </header>
 
-        <main class="flex-grow max-w-[1400px] mx-auto w-full px-2 md:px-6 -mt-6 z-10 space-y-6 pb-32">
-            
-            <section class="bg-[#0a2540] rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
-                <div class="p-4 bg-[#0f3052] flex gap-3 justify-between items-center">
-                    <button onclick="addRow()" class="bg-cyan-500 text-black py-2 px-4 rounded-lg flex items-center gap-2 font-bold text-sm">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Добавить
-                    </button>
-                    <button onclick="clearAll()" class="text-red-400 text-sm flex items-center gap-1">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i> Сброс
-                    </button>
+            <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="font-semibold text-gray-700">Список деталей</h3>
+                    <div class="flex gap-2">
+                        <button onclick="clearAll()" class="text-red-600 hover:text-red-800 text-sm font-medium px-3 py-2 flex items-center gap-1">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Очистить
+                        </button>
+                        <button onclick="addRow()" class="btn-primary py-2 px-4 rounded-lg flex items-center gap-2 font-medium text-sm shadow-sm">
+                            <i data-lucide="plus"></i> Добавить строку
+                        </button>
+                    </div>
                 </div>
-                <div class="table-container bg-[#0a2540]">
+                <div class="table-container border-0 rounded-none shadow-none">
                     <table id="calcTable">
                         <thead>
                             <tr>
                                 <th class="w-8 text-center">#</th>
-                                <th class="w-20">В (мм)</th>
-                                <th class="w-20">Ш (мм)</th>
-                                <th class="w-16">Т (мм)</th>
-                                <th class="w-12">Шт</th>
-                                <th class="min-w-[180px]">Параметры и покраска</th>
-                                <th class="text-right w-24">Сумма</th>
-                                <th class="w-8"></th>
+                                <th class="w-28">Выс (мм)</th>
+                                <th class="w-28">Шир (мм)</th>
+                                <th class="w-20">Кол-во</th>
+                                <th class="min-w-[200px]">Опции</th>
+                                <th class="text-right w-32">Сумма</th>
+                                <th class="w-10"></th>
                             </tr>
                         </thead>
                         <tbody id="tableBody"></tbody>
@@ -231,127 +148,199 @@
                 </div>
             </section>
 
-            <section class="bg-white/5 rounded-2xl border border-white/10 p-4">
-                <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-white">
-                    <i data-lucide="package-plus" class="text-cyan-400 w-5 h-5"></i> Комплектующие
+            <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
+                    <i data-lucide="package-plus" class="text-red-700"></i> Комплектующие
                 </h3>
-                <div class="grid grid-cols-1 gap-3">
-                    <div class="bg-black/30 p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="border border-gray-200 p-4 rounded-lg flex flex-col justify-between hover:border-red-200 transition">
                         <div>
-                            <div class="text-sm font-bold">Плинтус (3м)</div>
-                            <div class="text-cyan-400 font-mono text-xs">1 200 ₽</div>
+                            <div class="font-bold text-gray-800">Плинтус кухни</div>
+                            <div class="text-xs text-gray-500 mb-2">Вставка + основа (3м)</div>
+                            <div class="text-red-700 font-bold mb-3">1 200 ₽</div>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center justify-between bg-gray-50 rounded p-1">
                             <div class="stepper-btn" onclick="updateAcc('plinth', -1)">-</div>
-                            <span id="qty-plinth" class="font-bold w-4 text-center">0</span>
+                            <span id="qty-plinth" class="font-bold w-8 text-center text-gray-800">0</span>
                             <div class="stepper-btn" onclick="updateAcc('plinth', 1)">+</div>
                         </div>
                     </div>
-                    
-                     <div class="bg-black/30 p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                    <div class="border border-gray-200 p-4 rounded-lg flex flex-col justify-between hover:border-red-200 transition">
                         <div>
-                            <div class="text-sm font-bold">Цоколь (3м)</div>
-                            <div class="text-cyan-400 font-mono text-xs">1 500 ₽</div>
+                            <div class="font-bold text-gray-800">Цоколь ПВХ</div>
+                            <div class="text-xs text-gray-500 mb-2">С уплотнителем (3м)</div>
+                            <div class="text-red-700 font-bold mb-3">1 500 ₽</div>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center justify-between bg-gray-50 rounded p-1">
                             <div class="stepper-btn" onclick="updateAcc('kick', -1)">-</div>
-                            <span id="qty-kick" class="font-bold w-4 text-center">0</span>
+                            <span id="qty-kick" class="font-bold w-8 text-center text-gray-800">0</span>
                             <div class="stepper-btn" onclick="updateAcc('kick', 1)">+</div>
                         </div>
                     </div>
-
-                    <div class="bg-black/30 p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                    <div class="border border-gray-200 p-4 rounded-lg flex flex-col justify-between hover:border-red-200 transition">
                         <div>
-                            <div class="text-sm font-bold">Заглушки</div>
-                            <div class="text-cyan-400 font-mono text-xs">300 ₽</div>
+                            <div class="font-bold text-gray-800">Заглушки</div>
+                            <div class="text-xs text-gray-500 mb-2">Торцевые (металл)</div>
+                            <div class="text-red-700 font-bold mb-3">300 ₽</div>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center justify-between bg-gray-50 rounded p-1">
                             <div class="stepper-btn" onclick="updateAcc('caps', -1)">-</div>
-                            <span id="qty-caps" class="font-bold w-4 text-center">0</span>
+                            <span id="qty-caps" class="font-bold w-8 text-center text-gray-800">0</span>
                             <div class="stepper-btn" onclick="updateAcc('caps', 1)">+</div>
                         </div>
                     </div>
-
-                    <div class="bg-black/30 p-3 rounded-xl border border-white/5 flex items-center justify-between">
+                    <div class="border border-gray-200 p-4 rounded-lg flex flex-col justify-between hover:border-red-200 transition">
                         <div>
-                            <div class="text-sm font-bold">Планки</div>
-                            <div class="text-cyan-400 font-mono text-xs">400 ₽</div>
+                            <div class="font-bold text-gray-800">Планки</div>
+                            <div class="text-xs text-gray-500 mb-2">Соединительные</div>
+                            <div class="text-red-700 font-bold mb-3">400 ₽</div>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center justify-between bg-gray-50 rounded p-1">
                             <div class="stepper-btn" onclick="updateAcc('strips', -1)">-</div>
-                            <span id="qty-strips" class="font-bold w-4 text-center">0</span>
+                            <span id="qty-strips" class="font-bold w-8 text-center text-gray-800">0</span>
                             <div class="stepper-btn" onclick="updateAcc('strips', 1)">+</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="bg-gradient-to-r from-[#0f3052] to-[#0a2540] p-6 rounded-2xl border border-cyan-500/30 neon-box">
-                <div class="flex justify-between items-center">
-                    <span class="text-xl font-bold">ИТОГО:</span>
-                    <span id="grandTotal" class="text-3xl font-bold text-cyan-400 neon-text">0 ₽</span>
+            <section class="bg-gray-800 text-white p-6 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="space-y-1 text-sm text-gray-300">
+                    <p>Фасады: <span id="facadeTotal" class="text-white font-mono">0 ₽</span></p>
+                    <p>Комплектующие: <span id="accTotal" class="text-white font-mono">0 ₽</span></p>
                 </div>
-                <div class="text-xs text-gray-400 mt-2 text-right">Включая НДС 22%</div>
+                <div class="text-center md:text-right">
+                    <div class="text-gray-400 text-xs uppercase tracking-wider mb-1">Итоговая стоимость</div>
+                    <div id="grandTotal" class="text-3xl md:text-4xl font-bold text-white">0 ₽</div>
+                </div>
             </section>
 
-            <div class="fixed bottom-0 left-0 w-full bg-[#0a2540]/95 backdrop-blur-md border-t border-white/10 p-4 z-50">
-                <button onclick="toggleModal(true)" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-indigo-500/30 text-lg">
-                    <i data-lucide="share-2"></i> Отправить расчет
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                
+                <button onclick="sendToBitrix()" class="col-span-1 sm:col-span-2 bg-blue-600 text-white font-semibold py-3 px-4 rounded-xl hover:bg-blue-700 transition flex justify-center items-center gap-2 shadow-lg">
+                    <i data-lucide="rocket"></i> Оформить в CRM
                 </button>
-            </div>
-        </main>
-    </div>
 
-    <div id="messengerModal" class="modal-overlay" onclick="if(event.target === this) toggleModal(false)">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-white">Выберите получателя</h3>
-                <button onclick="toggleModal(false)" class="bg-white/10 p-2 rounded-full text-white hover:bg-white/20"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            
-            <div class="space-y-3">
-                
-                <button onclick="sendToMessenger('telegram')" style="background-color: #229ED9 !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
-                    <i data-lucide="send"></i> Telegram
+                <button onclick="shareToTelegram()" class="bg-sky-500 text-white font-semibold py-3 px-4 rounded-xl hover:bg-sky-600 transition flex justify-center items-center gap-2">
+                    <i data-lucide="send"></i> TG (Поделиться)
                 </button>
-                
-                <button onclick="sendToMessenger('whatsapp')" style="background-color: #25D366 !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
+
+                <button onclick="sendToWhatsapp()" class="bg-green-600 text-white font-semibold py-3 px-4 rounded-xl hover:bg-green-700 transition flex justify-center items-center gap-2">
                     <i data-lucide="message-circle"></i> WhatsApp
                 </button>
 
-                <button onclick="sendToMessenger('yandex')" style="background-color: #fc3f1d !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
-                    <i data-lucide="mail"></i> Яндекс Почта
+                <button onclick="downloadPDF()" class="col-span-1 sm:col-span-2 lg:col-span-4 bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-xl hover:bg-gray-50 transition flex justify-center items-center gap-2 mt-2">
+                    <i data-lucide="file-down"></i> Скачать Смету (PDF)
                 </button>
-                
-                <button onclick="sendToMessenger('max')" style="background: linear-gradient(90deg, #7c3aed, #4f46e5) !important; color: white !important;" class="w-full p-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg shadow-lg">
-                    <i data-lucide="zap"></i> MAX (Копировать)
-                </button>
-
             </div>
-        </div>
+
+        </main>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        
-        const VAT_RATE = 0.22;
-        let globalMatPrice = 6000;
-        const ACC_PRICES = { plinth: 1200, kick: 1500, caps: 300, strips: 400 };
-        const ACC_NAMES = { plinth: 'Плинтус', kick: 'Цоколь', caps: 'Заглушки', strips: 'Планки' };
-        let accQty = { plinth: 0, kick: 0, caps: 0, strips: 0 };
+    <div id="invoice-view"></div>
 
+    <script>
+        // --- TELEGRAM INIT ---
+        const tg = window.Telegram.WebApp;
+        
+        // Настройка Телеграма
+        document.addEventListener('DOMContentLoaded', () => {
+            tg.ready();
+            tg.expand(); // На весь экран
+            // Красим шапку Телеграма в белый, чтобы сливалась с дизайном
+            if (tg.setHeaderColor) tg.setHeaderColor('#ffffff');
+            if (tg.setBackgroundColor) tg.setBackgroundColor('#f9fafb');
+        });
+
+        // --- КОНТАКТЫ И НАСТРОЙКИ ---
+        const CONTACTS = {
+            phone: "79284343345",         
+            email: "mumorcevg@yandex.ru"
+        };
+        
+        // ВСТАВЬТЕ СЮДА ВАШУ WEBHOOK ССЫЛКУ ИЗ MAKE
+        const MAKE_WEBHOOK_URL = "https://hook.eu1.make.com/xxxxxxxxxxxxxxxxxxxx"; 
+
+        let globalMatPrice = 4500;
+        const ACC_PRICES = { plinth: 1200, kick: 1500, caps: 300, strips: 400 };
+        const ACC_NAMES = { plinth: 'Плинтус кухни', kick: 'Цоколь ПВХ', caps: 'Заглушки', strips: 'Планки' };
+        let accQty = { plinth: 0, kick: 0, caps: 0, strips: 0 };
+        
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            loadFromLS();
+            
+            if(!loadFromURL()) {
+                loadFromLS();
+            }
+
             if(document.getElementById('tableBody').children.length === 0) addRow();
         });
 
-        // --- CORE LOGIC ---
+        // --- ЛОГИКА ССЫЛОК ---
+        function getEditLink() {
+            const r = [];
+            document.querySelectorAll('#tableBody tr').forEach(tr => {
+                r.push([
+                    tr.querySelector('.inp-h').value,
+                    tr.querySelector('.inp-w').value,
+                    tr.querySelector('.inp-q').value,
+                    tr.querySelector('.inp-mill').value,
+                    tr.querySelector('.inp-paint').value
+                ]);
+            });
+            const a = [accQty.plinth, accQty.kick, accQty.caps, accQty.strips];
+            const data = JSON.stringify({ m: globalMatPrice, r: r, a: a });
+            const encoded = btoa(data);
+            const url = window.location.href.split('?')[0] + '?d=' + encoded;
+            return url;
+        }
+
+        function loadFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const dataStr = params.get('d');
+            if(!dataStr) return false;
+
+            try {
+                const json = atob(dataStr);
+                const data = JSON.parse(json);
+                if(data.m) setGlobalMaterial(data.m, document.querySelector(`.mat-card[onclick*="${data.m}"]`) || document.querySelector('.mat-card'));
+                if(data.a) {
+                    accQty.plinth = data.a[0] || 0;
+                    accQty.kick = data.a[1] || 0;
+                    accQty.caps = data.a[2] || 0;
+                    accQty.strips = data.a[3] || 0;
+                    updateAccUI();
+                }
+                document.getElementById('tableBody').innerHTML = '';
+                if(data.r && data.r.length > 0) {
+                    data.r.forEach(row => {
+                        addRow({ h: row[0], w: row[1], q: row[2], m: row[3], p: row[4] });
+                    });
+                }
+                const header = document.querySelector('h1');
+                if(header) {
+                    header.innerHTML += ' <span class="text-red-500 text-sm align-middle">(Редактирование)</span>';
+                }
+                return true;
+            } catch(e) {
+                console.error("Ошибка чтения ссылки", e);
+                return false;
+            }
+        }
+
+        function updateAccUI() {
+             Object.keys(accQty).forEach(k => { 
+                const el = document.getElementById(`qty-${k}`);
+                if(el) el.textContent = accQty[k];
+            });
+        }
+
+
+        // --- СТАНДАРТНАЯ ЛОГИКА ---
         function setGlobalMaterial(price, el) {
             globalMatPrice = price;
             document.querySelectorAll('.mat-card').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
+            if(el) el.classList.add('active');
             document.querySelectorAll('#tableBody tr').forEach(tr => calcRow(tr.querySelector('input')));
             calculateAll();
         }
@@ -359,48 +348,32 @@
         function addRow(data = null) {
             const tbody = document.getElementById('tableBody');
             const tr = document.createElement('tr');
-            tr.className = 'bg-transparent hover:bg-white/5 transition-colors group';
-            
-            const v = data || { h: 715, w: 396, d: 16, q: 1, m: 1, p: 1, vendor: 1 };
+            tr.className = 'hover:bg-gray-50 group';
+            const v = data || { h: 716, w: 396, q: 1, m: 1, p: 1 };
 
-            // ВОЗВРАЩЕНО: Select для Производителя (vendor)
             tr.innerHTML = `
-                <td class="text-gray-500 text-center index-cell">#</td>
-                <td><input type="number" value="${v.h}" class="inp-h" oninput="calcRow(this)"></td>
-                <td><input type="number" value="${v.w}" class="inp-w" oninput="calcRow(this)"></td>
-                <td>
-                    <select class="inp-d" onchange="calcRow(this)">
-                        <option value="16" ${v.d==16?'selected':''}>16</option>
-                        <option value="19" ${v.d==19?'selected':''}>19</option>
-                        <option value="22" ${v.d==22?'selected':''}>22</option>
-                    </select>
-                </td>
+                <td class="text-gray-400 text-center index-cell text-xs">#</td>
+                <td><input type="number" value="${v.h}" class="inp-h placeholder-gray-300" placeholder="716" oninput="calcRow(this)"></td>
+                <td><input type="number" value="${v.w}" class="inp-w placeholder-gray-300" placeholder="396" oninput="calcRow(this)"></td>
                 <td><input type="number" value="${v.q}" class="inp-q text-center" oninput="calcRow(this)"></td>
                 <td>
                     <div class="flex flex-col gap-2">
-                        <select class="inp-mill" onchange="calcRow(this)">
-                            <option value="1" ${v.m==1?'selected':''}>Нет фрез.</option>
-                            <option value="1.3" ${v.m==1.3?'selected':''}>Фрез x1.3</option>
-                            <option value="1.8" ${v.m==1.8?'selected':''}>Фрез x1.8</option>
+                        <select class="inp-mill text-sm" onchange="calcRow(this)">
+                            <option value="1" ${v.m==1?'selected':''}>Гладкий</option>
+                            <option value="1.3" ${v.m==1.3?'selected':''}>Фрезеровка (x1.3)</option>
+                            <option value="1.5" ${v.m==1.5?'selected':''}>Интегр. ручка (x1.5)</option>
                         </select>
-                        <select class="inp-paint" onchange="calcRow(this)">
-                            <option value="1" ${v.p==1?'selected':''}>Без покр.</option>
-                            <option value="1.2" ${v.p==1.2?'selected':''}>1 стор.</option>
-                            <option value="1.5" ${v.p==1.5?'selected':''}>2 стор.</option>
-                        </select>
-                        <select class="inp-vendor" onchange="calcRow(this)">
-                            <option value="1" ${v.vendor==1?'selected':''}>РФ (Стандарт)</option>
-                            <option value="1.15" ${v.vendor==1.15?'selected':''}>Китай (x1.15)</option>
-                            <option value="1.35" ${v.vendor==1.35?'selected':''}>Италия (x1.35)</option>
+                        <select class="inp-paint text-sm" onchange="calcRow(this)">
+                            <option value="1" ${v.p==1?'selected':''}>Одна сторона</option>
+                            <option value="1.5" ${v.p==1.5?'selected':''}>Две стороны (x1.5)</option>
                         </select>
                     </div>
                 </td>
-                <td class="text-right font-mono text-cyan-300 font-bold row-total">0</td>
+                <td class="text-right font-mono font-bold text-gray-800 row-total">0</td>
                 <td class="text-center">
-                    <button onclick="removeRow(this)" class="text-red-400 p-2"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <button onclick="removeRow(this)" class="text-gray-300 hover:text-red-500 p-2 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </td>
             `;
-
             tbody.appendChild(tr);
             lucide.createIcons();
             updateIndices();
@@ -408,9 +381,11 @@
         }
 
         function removeRow(btn) {
-            btn.closest('tr').remove();
-            updateIndices();
-            calculateAll();
+            if(document.querySelectorAll('#tableBody tr').length > 1) {
+                btn.closest('tr').remove();
+                updateIndices();
+                calculateAll();
+            }
         }
 
         function updateIndices() {
@@ -430,136 +405,193 @@
             const q = parseInt(tr.querySelector('.inp-q').value) || 0;
             const mill = parseFloat(tr.querySelector('.inp-mill').value);
             const paint = parseFloat(tr.querySelector('.inp-paint').value);
-            // ВОЗВРАЩЕНО: Учет вендора в формуле
-            const vendor = parseFloat(tr.querySelector('.inp-vendor').value);
-
-            let price = (h * w * globalMatPrice * mill * paint * vendor * q);
-
+            let price = (h * w * globalMatPrice * mill * paint * q);
             tr.querySelector('.row-total').textContent = Math.round(price).toLocaleString();
             tr.dataset.val = price;
             calculateAll(); 
-            saveData();
         }
 
         function calculateAll() {
             let facadeSum = 0;
-            document.querySelectorAll('#tableBody tr').forEach(tr => {
-                facadeSum += parseFloat(tr.dataset.val || 0);
-            });
-
+            document.querySelectorAll('#tableBody tr').forEach(tr => { facadeSum += parseFloat(tr.dataset.val || 0); });
             let accSum = 0;
-            for (const [key, qty] of Object.entries(accQty)) {
-                accSum += qty * ACC_PRICES[key];
+            for (const [key, qty] of Object.entries(accQty)) { accSum += qty * ACC_PRICES[key]; }
+            const total = facadeSum + accSum;
+            document.getElementById('facadeTotal').textContent = Math.round(facadeSum).toLocaleString() + ' ₽';
+            document.getElementById('accTotal').textContent = Math.round(accSum).toLocaleString() + ' ₽';
+            document.getElementById('grandTotal').textContent = Math.round(total).toLocaleString() + ' ₽';
+            
+            if(!window.location.search.includes('d=')) {
+                saveData();
             }
-
-            const subtotal = facadeSum + accSum;
-            const vat = subtotal * VAT_RATE;
-            const grandTotal = subtotal + vat;
-
-            document.getElementById('grandTotal').textContent = Math.round(grandTotal).toLocaleString() + ' ₽';
         }
 
         function saveData() {
             const rows = [];
             document.querySelectorAll('#tableBody tr').forEach(tr => {
                 rows.push({
-                    h: tr.querySelector('.inp-h').value,
-                    w: tr.querySelector('.inp-w').value,
-                    d: tr.querySelector('.inp-d').value,
-                    q: tr.querySelector('.inp-q').value,
-                    m: tr.querySelector('.inp-mill').value,
-                    p: tr.querySelector('.inp-paint').value,
-                    vendor: tr.querySelector('.inp-vendor').value // Сохраняем вендора
+                    h: tr.querySelector('.inp-h').value, w: tr.querySelector('.inp-w').value,
+                    q: tr.querySelector('.inp-q').value, m: tr.querySelector('.inp-mill').value,
+                    p: tr.querySelector('.inp-paint').value
                 });
             });
             const data = { rows, accQty, globalMatPrice };
-            localStorage.setItem('facadeCalc2026', JSON.stringify(data));
+            localStorage.setItem('glossMasterCalc', JSON.stringify(data));
         }
 
         function loadFromLS() {
-            const saved = JSON.parse(localStorage.getItem('facadeCalc2026'));
+            const saved = JSON.parse(localStorage.getItem('glossMasterCalc'));
             if(!saved) return;
-            if(saved.globalMatPrice) setGlobalMaterial(saved.globalMatPrice, document.querySelector('.mat-card'));
-            if(saved.accQty) Object.keys(saved.accQty).forEach(k => { accQty[k] = saved.accQty[k]; document.getElementById(`qty-${k}`).textContent = accQty[k]; });
+            if(saved.globalMatPrice) setGlobalMaterial(saved.globalMatPrice, document.querySelector(`.mat-card[onclick*="${saved.globalMatPrice}"]`) || document.querySelector('.mat-card'));
+            if(saved.accQty) {
+                Object.keys(saved.accQty).forEach(k => { 
+                    accQty[k] = saved.accQty[k]; 
+                    const el = document.getElementById(`qty-${k}`);
+                    if(el) el.textContent = accQty[k];
+                });
+            }
             if(saved.rows && saved.rows.length > 0) {
                 document.getElementById('tableBody').innerHTML = '';
                 saved.rows.forEach(r => addRow(r));
             }
         }
-
+        
         function clearAll() {
-            if(!confirm('Очистить таблицу?')) return;
-            document.getElementById('tableBody').innerHTML = '';
-            addRow();
-            Object.keys(accQty).forEach(k => { accQty[k] = 0; document.getElementById(`qty-${k}`).textContent = 0; });
-            calculateAll();
-        }
-
-        // --- MODAL & SENDING ---
-        function toggleModal(show) {
-            const modal = document.getElementById('messengerModal');
-            if (show) {
-                modal.classList.add('open');
-                gsap.from(".modal-content button", {
-                    y: 20, opacity: 0, stagger: 0.05, duration: 0.3
-                });
-            } else {
-                modal.classList.remove('open');
-            }
+            // Используем нативное подтверждение TG
+            tg.showConfirm('Очистить таблицу и создать новый заказ?', (confirmed) => {
+                if (confirmed) {
+                    document.getElementById('tableBody').innerHTML = '';
+                    addRow();
+                    Object.keys(accQty).forEach(k => { accQty[k] = 0; document.getElementById(`qty-${k}`).textContent = 0; });
+                    localStorage.removeItem('glossMasterCalc');
+                    window.history.pushState({}, document.title, window.location.pathname);
+                    const header = document.querySelector('h1');
+                    if(header) header.innerHTML = header.innerHTML.replace(' <span class="text-red-500 text-sm align-middle">(Редактирование)</span>', '');
+                    calculateAll();
+                }
+            });
         }
 
         function getOrderText() {
             const total = document.getElementById('grandTotal').textContent;
-            let body = `Заказ фасадов:\n\n`;
+            let text = `Заказ Gloss Master:\n\n`;
+            document.querySelectorAll('#tableBody tr').forEach((tr, i) => {
+                const h = tr.querySelector('.inp-h').value;
+                const w = tr.querySelector('.inp-w').value;
+                const q = tr.querySelector('.inp-q').value;
+                const mill = tr.querySelector('.inp-mill option:checked').text;
+                text += `${i+1}. ${h}x${w} - ${q} шт. (${mill})\n`;
+            });
+            let hasAcc = false;
+            for (const [key, val] of Object.entries(accQty)) {
+                if (val > 0) {
+                    if(!hasAcc) { text += `\nКомплектующие:\n`; hasAcc = true; }
+                    text += `${ACC_NAMES[key]}: ${val} шт.\n`;
+                }
+            }
+            text += `\nИТОГО: ${total}`;
+            return text;
+        }
+
+        // --- ОТПРАВКА ---
+        function sendToWhatsapp() {
+            const text = getOrderText() + `\n\nСсылка на заказ: ` + getEditLink();
+            window.open(`https://wa.me/${CONTACTS.phone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function shareToTelegram() {
+            const text = getOrderText() + `\n\nСсылка на заказ: ` + getEditLink();
+            // Внутри Telegram Web App используем специальный метод
+            const url = `https://t.me/share/url?url=${encodeURIComponent(getEditLink())}&text=${encodeURIComponent(text)}`;
+            tg.openTelegramLink(url);
+        }
+
+        // --- ОТПРАВКА В БИТРИКС (MAKE) С УЧЕТОМ TELEGRAM USER ---
+        async function sendToBitrix() {
+            const btn = document.querySelector('button[onclick="sendToBitrix()"]');
+            if(btn) { btn.textContent = "Отправка..."; btn.disabled = true; }
+
+            // 1. Пытаемся взять имя из Telegram
+            let defaultName = "Клиент с сайта";
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                defaultName = `${user.first_name} ${user.last_name || ''} (@${user.username || 'no_user'})`.trim();
+            }
+
+            // 2. Телефон все равно спрашиваем (TG не отдает его просто так)
+            // Но мы используем нативный popup, если возможно, или обычный prompt
+            const phone = prompt("Введите номер телефона КЛИЕНТА:", "+7");
+            
+            if(!phone) { 
+                if(btn) { btn.textContent = "Оформить в CRM"; btn.disabled = false; } 
+                return; 
+            }
+            
+            const totalSum = document.getElementById('grandTotal').textContent;
+            const editLink = getEditLink();
+            const textOrder = getOrderText();
+
+            const payload = {
+                contact: { 
+                    phone: phone, 
+                    name: defaultName 
+                },
+                deal: {
+                    title: `Заказ TG ${totalSum}`,
+                    description: `${textOrder}\n\n=================\n✏️ ИЗМЕНИТЬ ЗАКАЗ:\n${editLink}\n=================`,
+                    opportunity: parseFloat(totalSum.replace(/\D/g, '')),
+                }
+            };
+
+            try {
+                if(MAKE_WEBHOOK_URL.includes("xxxx")) {
+                    tg.showAlert("Ошибка: Не настроен Webhook!");
+                } else {
+                    await fetch(MAKE_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    tg.showAlert("✅ Заказ успешно создан в Битрикс24!");
+                }
+            } catch (e) {
+                console.error(e);
+                tg.showAlert("Ошибка отправки. Проверьте интернет.");
+            }
+            if(btn) { btn.textContent = "Оформить в CRM"; btn.disabled = false; }
+        }
+
+        // --- PDF ---
+        function generateInvoiceHTML() {
+            const date = new Date().toLocaleDateString();
+            const total = document.getElementById('grandTotal').textContent;
+            let html = `<div style="border-bottom: 2px solid #b91c1c; padding-bottom: 10px; margin-bottom: 20px;"><h1 style="font-size: 24px; margin:0;">СМЕТА: GLOSS MASTER</h1><p style="margin:5px 0 0 0; color:#555;">Дата: ${date}</p></div><table class="invoice-table"><thead><tr><th style="width: 5%">#</th><th style="width: 45%">Наименование</th><th style="width: 15%">Кол-во</th><th style="width: 35%; text-align: right">Сумма</th></tr></thead><tbody>`;
             
             document.querySelectorAll('#tableBody tr').forEach((tr, i) => {
                 const h = tr.querySelector('.inp-h').value;
                 const w = tr.querySelector('.inp-w').value;
                 const q = tr.querySelector('.inp-q').value;
-                const vendor = tr.querySelector('.inp-vendor option:checked').text;
+                const mill = tr.querySelector('.inp-mill option:checked').text;
                 const price = tr.querySelector('.row-total').textContent;
-                body += `${i+1}. ${h}x${w}, ${q}шт. (${vendor}) - ${price}\n`;
+                html += `<tr><td style="text-align: center">${i+1}</td><td>Фасад ${h}x${w} (${mill})</td><td style="text-align: center">${q}</td><td style="text-align: right; font-weight: bold">${price}</td></tr>`;
             });
-
-            if(accQty.plinth > 0) body += `Плинтус: ${accQty.plinth} шт.\n`;
-            if(accQty.kick > 0) body += `Цоколь: ${accQty.kick} шт.\n`;
-            if(accQty.caps > 0) body += `Заглушки: ${accQty.caps} шт.\n`;
-            if(accQty.strips > 0) body += `Планки: ${accQty.strips} шт.\n`;
-            
-            body += `\nИТОГО: ${total}`;
-            return body;
-        }
-
-        function sendToMessenger(type) {
-            const text = getOrderText();
-            const encodedText = encodeURIComponent(text);
-            
-            if (type === 'telegram') {
-                const url = `https://t.me/share/url?url=${encodeURIComponent(' ')}&text=${encodedText}`;
-                tg.openTelegramLink(url);
-            } 
-            else if (type === 'whatsapp') {
-                window.open(`https://wa.me/?text=${encodedText}`, '_blank');
-            }
-            // ОБНОВЛЕНО: Открытие Яндекс Почты
-            else if (type === 'yandex') {
-                const yandexUrl = `https://mail.yandex.ru/compose?subject=${encodeURIComponent("Расчет фасадов")}&body=${encodedText}`;
-                window.open(yandexUrl, '_blank');
-            }
-            else if (type === 'max') {
-                if(navigator.clipboard) {
-                    navigator.clipboard.writeText(text).then(() => alert('Текст скопирован!'));
-                } else {
-                    const el = document.createElement('textarea');
-                    el.value = text;
-                    document.body.appendChild(el);
-                    el.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(el);
-                    alert('Текст скопирован!');
+            for (const [key, val] of Object.entries(accQty)) {
+                if (val > 0) {
+                    const price = (val * ACC_PRICES[key]).toLocaleString();
+                    html += `<tr><td style="text-align: center">-</td><td>${ACC_NAMES[key]}</td><td style="text-align: center">${val}</td><td style="text-align: right; font-weight: bold">${price}</td></tr>`;
                 }
             }
-            toggleModal(false);
+            html += `</tbody></table><h2 style="text-align: right; margin-top: 20px;">ИТОГО: ${total}</h2>`;
+            return html;
+        }
+
+        function downloadPDF() {
+            const content = generateInvoiceHTML();
+            const view = document.getElementById('invoice-view');
+            view.innerHTML = content;
+            view.style.display = 'block';
+            const opt = { margin: 10, filename: 'Smeta.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            setTimeout(() => { html2pdf().set(opt).from(view).save().then(() => { view.style.display = 'none'; }); }, 100);
         }
     </script>
 </body>
